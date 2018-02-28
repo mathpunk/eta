@@ -1,5 +1,5 @@
-(ns eta.transforms-test
-  (:require [eta.transforms :as sut]
+(ns eta.transform-test
+  (:require [eta.transform :as sut]
             [clojure.test :refer [deftest testing is]]
             [clojure.spec.alpha :as s]
             [java-time :as time]))
@@ -10,8 +10,8 @@
 
 
 (deftest test-string-to-tag-set
-  (let [tag-set (sut/str->tags "term, other term")] 
+  (let [tag-set (sut/space-separate-tags "term otherterm")] 
     (is (s/valid? :eta.type/tag-set tag-set))
     (is (some #{"term"} tag-set))
-    (is (some #{"other term"} tag-set))))
+    (is (some #{"otherterm"} tag-set))))
 
