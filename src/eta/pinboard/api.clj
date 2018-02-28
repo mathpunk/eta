@@ -1,7 +1,7 @@
 eta(ns eta.pinboard.api
-     (:require [eta.auth :refer [pinboard-credentials]]
+     (:require [eta.extract.auth :refer [pinboard-credentials]]
                [com.rpl.specter :refer [transform MAP-VALS MAP-KEYS]]
-               [eta.transforms :as xforms]
+               [eta.transform :as xform]
                [clj-http.client :as client]
                [cheshire.core :as json]))
 
@@ -52,7 +52,7 @@ eta(ns eta.pinboard.api
 (defn post-counts-by-date []
   (->> (get (call "posts/dates") "dates")
        (transform [MAP-VALS] #(Integer. %))
-       (transform [MAP-KEYS] xforms/str->date)
+       (transform [MAP-KEYS] xform/str->date)
        sort))
 
 (defn posts-on-date [date]

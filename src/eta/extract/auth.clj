@@ -1,4 +1,4 @@
-(ns eta.auth
+(ns eta.extract.auth
   (:require [aero.core :as aero]))
 
 (def secrets

@@ -1,4 +1,4 @@
-(ns eta.transforms
+(ns eta.transform
   (:require [java-time :as time]
             [eta.pinboard.pin]
             [clojure.spec.alpha :as s]
@@ -23,8 +23,8 @@
 
 ;; Strings and Tags
 ;; ====================
-(defn str->tags [tag-string]
-  (let [separated (string/split tag-string #",")
+(defn space-separate-tags [tag-string]
+  (let [separated (string/split tag-string #"\s+")
         tags (map string/trim separated)]
     (set tags)))
 
@@ -43,7 +43,7 @@
   (-> input-pin
       (rename-keys pin-keymap)
       (update-in [:pinboard.pin/href] #(java.net.URI. %))
-      (update-in [:pinboard.pin/tags] str->tags)
+      (update-in [:pinboard.pin/tags] space-separate-tags)
       (update-in [:pinboard.pin/pinned-at] str->date)
       (update-in [:pinboard.pin/shared] #(if (= "yes" %) true false))
       ))
