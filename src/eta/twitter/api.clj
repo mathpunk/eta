@@ -1,4 +1,35 @@
-(ns eta.twitter.social)
+(ns eta.twitter.api
+  (:require [eta.extract.auth :refer [twitter-credentials]]
+            [twitter.oauth :as oauth]
+            [twitter.callbacks.handlers :as callback]
+            [twitter.api.restful :as rest])
+  (:import [twitter.callbacks.protocols SyncSingleCallback]))
+
+
+(def authentication (oauth/make-oauth-creds (:app-consumer-key twitter-credentials)
+                                            (:app-consumer-secret twitter-credentials)
+                                            (:user-access-token twitter-credentials)
+                                            (:user-access-token-secret twitter-credentials)))
+
+(def ^:dynamic *callback*
+  (SyncSingleCallback. callback/response-return-body
+                       callback/get-twitter-error-message ;; expecting 420: Enhance Your Calm
+                       callback/response-throw-error))
+
+(defn query [api-fn & key-value-pairs]
+  (api-fn :oauth-creds authentication
+          :callbacks *callback*
+          :params (apply assoc (conj key-value-pairs {}))))
+
+
+;; Statuses
+;; ============================
+(defn status [id]
+  (first (query rest/statuses-lookup :id id)))
+
+#_(-> (status 957651298991706112)
+      :text)
+
 
 ;; Social
 
@@ -39,4 +70,3 @@
 ;;  (select-keys clearly-interesting-user-keys))
 
 ;; (followers-by-id "mathpunk")
-
