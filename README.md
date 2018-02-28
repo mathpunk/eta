@@ -12,6 +12,20 @@ I have a couple-three large collections of text that I've created or squirreled 
 
 Dunno yet.
 
+## Progress
+
+- Access pinboard data
+- Access twitter statuses by id
+- Transform pinboard data from string representations to Java objects (URIs, dates, etc)
+- Persist pinboard data as flat files (putting off db decisions)
+
+Next:
+- Pinboard stores tags as space-separated, not comma-separated, whoops
+- Can't read edn using this strategy without defining some custom readers for deserializing the objects
+
+Status: On hold during code challenge period. (2018-02-28 - ??)
+
+
 ## The Data
 
 May include, is not limited to, 
