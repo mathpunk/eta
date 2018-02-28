@@ -1,9 +1,8 @@
 (ns eta.type-test
   (:require [eta.type]
-            [clj-time.core :as time]
+            [java-time :as time]
             [clojure.spec.alpha :as s]
-            [clojure.test :refer [deftest testing is]])
-  (:import org.joda.time.LocalDate))
+            [clojure.test :refer [deftest testing is]]))
 
 (deftest test-tag-set
   (testing "tags are comma-separated, can have spaces"
