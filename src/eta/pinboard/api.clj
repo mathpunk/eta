@@ -1,7 +1,9 @@
-(ns eta.pinboard.api
-  (:require [eta.auth :refer [pinboard-credentials]]
-            [clj-http.client :as client]
-            [cheshire.core :as json]))
+eta(ns eta.pinboard.api
+     (:require [eta.auth :refer [pinboard-credentials]]
+               [com.rpl.specter :refer [transform MAP-VALS MAP-KEYS]]
+               [eta.transforms :as xforms]
+               [clj-http.client :as client]
+               [cheshire.core :as json]))
 
 (def auth-token (pinboard-credentials :auth-token))
 
@@ -13,6 +15,8 @@
          params {"auth_token" auth-token, "format" "json"}]
      (-> (client/get uri {:query-params params})
          ;; check status
+         ;; handle rate limits
+         ;; handle errors
          :body
          json/decode)))
   ([method args]
@@ -42,3 +46,26 @@
 ;; <result code="done" />
 
 ;; or their JSON equivalents.
+
+
+
+(defn post-counts-by-date []
+  (->> (get (call "posts/dates") "dates")
+       (transform [MAP-VALS] #(Integer. %))
+       (transform [MAP-KEYS] xforms/str->date)
+       sort))
+
+(defn posts-on-date [date]
+  (let [posts (get (call "posts/get" {"dt" (str date)}) "posts")]
+    {:date (str date)
+     :posts posts}))
+
+(defn all-posts
+  "This finishes within a minute or so. You can only call it every five minutes by Pinboard.in policy."
+  []
+  (call "posts/all"))
+
+#_(defn posts-since-date
+    "Hey why doesn't this work"
+    [date]
+    (get (api/call "posts/all" {"fromdt" (str date)}) "posts"))
