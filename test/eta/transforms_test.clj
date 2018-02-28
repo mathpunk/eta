@@ -12,4 +12,6 @@
 (deftest test-string-to-tag-set
   (let [tag-set (sut/str->tags "term, other term")] 
     (is (s/valid? :eta.type/tag-set tag-set))
-    (is (some #{"term"} tag-set))))
+    (is (some #{"term"} tag-set))
+    (is (some #{"other term"} tag-set))))
+

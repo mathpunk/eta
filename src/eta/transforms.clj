@@ -20,10 +20,6 @@
     (time/local-date "yyyy-MM-dd" s)
     (time/offset-date-time s)))
 
-#_(str->date "2015-01-23")
-
-#_(str->date "2012-11-14T05:44:51Z")
-
 
 ;; Strings and Tags
 ;; ====================
