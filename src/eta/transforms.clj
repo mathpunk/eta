@@ -50,17 +50,5 @@
       (update-in [:pinboard.pin/tags] str->tags)
       (update-in [:pinboard.pin/pinned-at] str->date)
       (update-in [:pinboard.pin/shared] #(if (= "yes" %) true false))
-      (dissoc "hash" "meta")
-
       ))
-
-
-(def sample {"extended" "I'm havingfuntrying to imagine the Cyborg-Historical /c The network reveals. — ", "shared" "yes", "hash" "8a78c6f32579cb4a65a7dd94a8582387", "tags" "", "href" "http://yes.thatcan.be/my/next/tweet/", "time" "2012-11-14T05:44:51Z", "meta" "e2a06ea74ba8d8644be57b4dc4cb9ea7", "description" "That can be my next tweet", "toread" "no"})
-
-(transform-pin sample)
-
-(s/valid? :pinboard.pin/entity (transform-pin sample))
-
-
-
 
