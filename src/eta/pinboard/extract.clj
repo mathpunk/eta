@@ -1,9 +1,10 @@
 (ns eta.pinboard.extract
-  (:require [eta.pinboard.api :as api]
-            [eta.pinboard.extract.transform :as xform]
-            [java-time :as time]
+  (:require [clojure.java.io :as io]
             [clojure.set :as set]
-            [clojure.java.io :as io]))
+            [eta.pinboard.api :as api]
+            [eta.pinboard.extract.transform :as xform]
+            [java-time :as time])
+  (:import java.net.URISyntaxException))
 
 (defn today []
   (-> (time/local-date)
@@ -14,10 +15,6 @@
 
 (defn large-batch []
   (api/all-posts))
-
-(def pin
-  (-> (small-batch)
-      first))
 
 (def input->output-transforms
   [["extended"    :pinboard.pin/extended    identity]
@@ -41,14 +38,21 @@
     (zipmap fqks fns)))
 
 (defn transform-entry [pin field]
-  (update pin field (get val-transforms field)))
+  (try
+    (update pin field (get val-transforms field))
+    (catch URISyntaxException e
+      (let [bad-data (get pin field)]
+        (-> (dissoc pin :pinboard.pin/href)
+            (assoc :bad-uri bad-data))))))
 
 (defn transform-pin [pin]
   (-> (set/rename-keys pin key-transforms)
       (transform-entry :pinboard.pin/extended)
       (transform-entry :pinboard.pin/description)
       (transform-entry :pinboard.pin/tags)
+
       (transform-entry :pinboard.pin/href)
+
       (transform-entry :pinboard.pin/hash)
       (transform-entry :pinboard.pin/meta)
       (transform-entry :pinboard.pin/pinned-at)
@@ -64,9 +68,24 @@
     [(str *persistence-target* "/" unique-id "/" change-id ".edn") ;; unique-id change-id
      (dissoc transformed :pinboard.pin/meta :pinboard.pin/hash)]))
 
-(let [transaction (prepare-transaction pin)]
-  (io/make-parents (first transaction))
-  (spit (first transaction) (second transaction)))
+(defn persist! [pin]
+  (let [transaction (prepare-transaction pin)]
+    (io/make-parents (first transaction))
+    (spit (first transaction) (second transaction))))
 
+#_(def pin
+    (-> (small-batch)
+        first))
 
-;; https://github.com/clojure-cookbook/clojure-cookbook/blob/master/04_local-io/4-17_unknown-reader-literals.asciidoc
+#_(prepare-transaction pin)
+
+#_(persist! pin)
+
+#_(map persist! (small-batch))
+
+#_(def all (large-batch))
+
+#_(map persist! (large-batch))
+
+#_(map persist! all)
+
