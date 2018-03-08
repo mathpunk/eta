@@ -3,11 +3,11 @@
             [clojure.spec.alpha :as s]))
 
 ;; Tags and sets of them
-(s/def ::tag
+(s/def ::space-separated-tag
   (s/and string?
-         #(not (string/includes? % ","))))
+         #(not (string/includes? % " "))))
 
-(s/def ::tag-set (s/coll-of ::tag))
+(s/def ::tag-set (s/coll-of ::space-separated-tag))
 
 ;; Freetext. Could be any string, but semantically, it's a little different. Wouldn't know how or whether to specify further.
 (s/def ::freetext string?)
@@ -19,4 +19,5 @@
 
 ;; "Links." What's the difference between an href, a uri, and a url?
 (s/def ::uri uri?)
+
 
