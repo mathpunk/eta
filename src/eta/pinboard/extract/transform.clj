@@ -19,10 +19,17 @@
     (time/local-date "yyyy-MM-dd" s)
     (time/offset-date-time s)))
 
-
-;; Strings and Tags
-;; ====================
-(defn space-separate-tags [tag-string]
+(defn space-separated->tags [tag-string]
   (let [separated (string/split tag-string #"\s+")
         tags (map string/trim separated)]
     (set tags)))
+
+(s/def ::yes-or-no #{"yes" "no"})
+
+(defn yn->bool [yn]
+  (case yn
+    "yes" true
+    "no" false
+    (throw (ex-info (str "Expected 'yes' or 'no', got something else:")
+                    {:data (s/explain ::yes-or-no yn)
+                     :value yn}))))
