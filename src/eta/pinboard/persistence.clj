@@ -19,4 +19,5 @@
 (defn write [pin]
   (let [filename (filename pin)]
     (io/make-parents filename)
-    (spit filename pin)))
+    (spit filename pin)
+    filename))
