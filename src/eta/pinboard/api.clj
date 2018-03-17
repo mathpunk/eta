@@ -46,6 +46,12 @@
          :body
          json/decode true))))
 
+(defn get-batch-with-status [date]
+  (let [method "posts/get"
+        uri (str base-uri method)
+        params {"auth_token" auth-token "format" "json"}]
+    (client/get uri {:query-params (merge params {"dt" date})})))
+
 (defn recent-posts []
   (-> (call "posts/recent")
       (get "posts")))

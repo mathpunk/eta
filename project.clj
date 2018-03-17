@@ -9,5 +9,7 @@
                  [clojure.java-time "0.3.1"]
                  [clj-http "3.7.0"]
                  [cheshire "5.8.0"]
+                 [seesaw "1.4.5"]
+                 [org.clojure/core.match "0.3.0-alpha5"]
                  [com.rpl/specter "1.1.0"]
                  ])

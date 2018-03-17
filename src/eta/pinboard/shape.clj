@@ -1,21 +1,23 @@
 (ns eta.pinboard.shape
   (:require [eta.transforms :as xform]
+            [eta.specify :as spec]
             [clojure.set :as set]
+            [eta.pinboard.pin]
             [clojure.spec.alpha :as s])
   (:import java.net.URI
            java.net.URISyntaxException))
 
 
 (def input->output-map
-  [["extended"    :pinboard.pin/extended    identity]
-   ["description" :pinboard.pin/description identity]
-   ["hash"        :pinboard.pin/hash        identity]
-   ["meta"        :pinboard.pin/meta        identity]
-   ["tags"        :pinboard.pin/tags        xform/space-separated->tags]
-   ["href"        :pinboard.pin/href        #(URI. %)]
-   ["time"        :pinboard.pin/pinned-at   xform/string->date]
-   ["shared"      :pinboard.pin/shared      xform/yn->bool]
-   ["toread"      :pinboard.pin/to-read     xform/yn->bool]])
+  [[:extended    :pinboard.pin/extended    identity]
+   [:description :pinboard.pin/description identity]
+   [:hash        :pinboard.pin/hash        identity]
+   [:meta        :pinboard.pin/meta        identity]
+   [:tags        :pinboard.pin/tags        xform/space-separated->tags]
+   [:href        :pinboard.pin/href        #(URI. %)]
+   [:time        :pinboard.pin/pinned-at   xform/string->date]
+   [:shared      :pinboard.pin/shared      xform/yn->bool]
+   [:toread      :pinboard.pin/to-read     xform/yn->bool]])
 
 (def key-map
   (let [ks (map first input->output-map)
@@ -32,8 +34,7 @@
     (update pin field (get val-map field))
     (catch URISyntaxException e
       (let [bad-data (get pin field)]
-        (-> (dissoc pin :pinboard.pin/href)
-            (assoc :bad-uri bad-data))))))
+        (-> (assoc pin :pinboard.pin/href bad-data))))))
 
 (defn shape-pin [pin]
   (-> (set/rename-keys pin key-map)
@@ -49,3 +50,10 @@
 
 (s/fdef shape-pin
         :ret :pinboard.pin/entity)
+
+(defn shape! [input-pin]
+  (->> input-pin
+       shape-pin
+       (spec/conform! :pinboard.pin/entity)))
+
+
