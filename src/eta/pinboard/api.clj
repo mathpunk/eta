@@ -1,8 +1,8 @@
 (ns eta.pinboard.api
-  (:require [eta.extract.auth :refer [pinboard-credentials]]
-            [com.rpl.specter :refer [transform MAP-VALS MAP-KEYS]]
+  (:require [cheshire.core :as json]
             [clj-http.client :as client]
-            [cheshire.core :as json]))
+            [com.rpl.specter :refer [MAP-VALS transform]]
+            [eta.auth :refer [pinboard-credentials]]))
 
 (def auth-token (pinboard-credentials :auth-token))
 

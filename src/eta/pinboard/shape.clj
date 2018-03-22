@@ -1,12 +1,9 @@
 (ns eta.pinboard.shape
-  (:require [eta.transforms :as xform]
+  (:require [clojure.set :as set]
+            [clojure.spec.alpha :as s]
             [eta.specify :as spec]
-            [clojure.set :as set]
-            [eta.pinboard.pin]
-            [clojure.spec.alpha :as s])
-  (:import java.net.URI
-           java.net.URISyntaxException))
-
+            [eta.transforms :as xform])
+  (:import [java.net URI URISyntaxException]))
 
 (def input->output-map
   [[:extended    :pinboard.pin/extended    identity]
@@ -57,3 +54,10 @@
        (spec/conform! :pinboard.pin/entity)))
 
 
+(defn shape-batch! [batch]
+  (-> batch
+      (update :posts (fn [items] (map shape! items)))
+      (set/rename-keys {:date :index, :posts :items})))
+
+(s/fdef shape-batch!
+        :args (s/keys :req-un [::date ::posts]))

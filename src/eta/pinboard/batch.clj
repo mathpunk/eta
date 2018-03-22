@@ -1,10 +1,9 @@
 (ns eta.pinboard.batch
-  (:require [java-time :as time]
+  (:require [cheshire.core :as json]
             [clojure.core.match :refer [match]]
-            [cheshire.core :as json]
-            [eta.pinboard.shape :as shape]
-            [eta.pinboard.api :as api]
-            [clojure.set :as set]))
+            [clojure.java.io :as io]
+            [clojure.string :as string]
+            [eta.pinboard.api :as api]))
 
 (def indexes (keys (api/post-counts-by-date)))
 
@@ -16,25 +15,33 @@
       [:success {:date date
                  :posts (-> result
                             :body
-                            (json/decode ,,, true)
+                            (json/decode true)
                             :posts)}]
       [:failure result])))
 
-(defn throw-api-failure [retrieval]
-  (match retrieval
-         [:success batch] batch
-         [:failure response] (throw (ex-info
-                                     (str "API call failed with status " (response :status))
-                                     {:status (response :status)
-                                      :reason (response :reason-phrase)
-                                      :value response}))))
+(defn fetch! [index]
+  (let [retrieval (fetch index)]
+    (match retrieval
+           [:success batch] batch
+           [:failure response] (throw (ex-info
+                                       (str "API call failed with status " (response :status))
+                                       {:status (response :status)
+                                        :reason (response :reason-phrase)
+                                        :value response})))))
 
-(defn fetch-and-conform! [index]
-  (-> index
-      fetch
-      throw-api-failure
-      (update :posts (fn [items] (map shape/shape! items)))
-      (set/rename-keys {:date :index, :posts :items})))
+(def snapshot-all-as-lines
+  "Having used curl to download a json file of all of the pins, this provides a sequence of lines of that file. One line corresponds to a record. The first and last record viewed as lines are not valid json, because they have the initial `[` and terminal `]`."
+  (line-seq (io/reader (io/resource "pinboard_all.json"))))
 
+(defn object-stringify-first [line]
+  (string/join (drop 1 line)))
 
-#_(fetch-and-conform! "2012-11-14")
+(defn object-stringify-last [line]
+  (string/join (drop-last 2 line)))
+
+(def snapshot-all
+  (map #(json/decode % true)
+       (-> snapshot-all-as-lines
+           vec
+           (update 0 object-stringify-first)
+           (update (- (count snapshot-all-as-lines) 1) object-stringify-last))))
