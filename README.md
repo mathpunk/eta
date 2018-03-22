@@ -17,14 +17,20 @@ Dunno yet.
 - Access pinboard data
 - Access twitter statuses by id
 - Transform pinboard data from string representations to Java objects (URIs, dates, etc)
+- Specify :pinboard.pin/entity to generously accept errors in data, marking it for later improvement
 - Persist pinboard data as flat files (putting off db decisions)
+- Run an full extraction job on all pinboard posts
 
-Next:
-- Pinboard stores tags as space-separated, not comma-separated, whoops
-- Can't read edn using this strategy without defining some custom readers for deserializing the objects
+## Next
 
-Status: On hold during code challenge period. (2018-02-28 - ??)
-
+- I won't have my own storage solution done soon, so it would be nice to have a way to synchronize your data without re-running the full job
+- Classify pins: ordinary page vs. saved tweet; saved tweet that's accesible through the API vs. tweets that have since been deleted
+- Retrieve tweet data (saved on pinboard)
+- Retrieve tweet data (my own tweet archive)
+- Retrieve user data
+- Play with parsing of org-mode files for personal journal extraction
+- Generalize solutions that are common between pinboard and twitter extractions
+- Provision and load Datomic (dev, cloud)
 
 ## The Data
 
